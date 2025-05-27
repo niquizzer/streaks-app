@@ -1,0 +1,39 @@
+App Name: Streaks
+- This app will be a simple tool that takes Jerry Seinfield's idea of 
+"don't break the chain" and makes it into a functional app. The idea is 
+you can create an account, and your dashboard will hold all of your "chains".
+These chains are the different habits you want to track, and your goal is to
+simply not break the chain.
+
+What done looks like:
+- CRUD ops implemented
+- Smooth state management and api calls
+- Basic user security
+- Data survives server restarts
+
+MVP features:
+- Simple home/landing page
+- Ability to sign-up
+- Login/authentication to access webapp
+- Basic streak creation ability
+- Save and store account/streak info based on account
+
+Methods:
+
+Packages:
+    - Next.js
+    - Bootstrap
+    - Redux toolkit
+    - sqlite3
+
+Frontend
+    - store.js - manages all my reducers
+    - dashboardSlice.js manages ui state + sending api calls on dashboard
+    - loginSlice.js manages ui state
+
+Backend
+    - app.js with CRUD endpoints and endpoints for additional functionality 
+
+Database
+    - SQLite db 
+    - User data will store in a new row 

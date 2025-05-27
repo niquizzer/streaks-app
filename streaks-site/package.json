@@ -1,0 +1,31 @@
+{
+  "name": "streaks-app",
+  "version": "0.1.0",
+  "private": true,
+  "description": "This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).",
+  "license": "ISC",
+  "author": "",
+  "type": "module",
+  "main": "page.jsx",
+  "scripts": {
+    "dev": "next dev --turbopack",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
+  },
+  "dependencies": {
+    "@reduxjs/toolkit": "^2.8.2",
+    "bootstrap": "^5.3.6",
+    "next": "15.3.2",
+    "react": "^19.0.0",
+    "react-bootstrap": "^2.10.10",
+    "react-dom": "^19.0.0",
+    "react-redux": "^9.2.0",
+    "redux-store": "^0.0.0",
+    "redux-thunk": "^3.1.0"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4",
+    "tailwindcss": "^4"
+  }
+}
