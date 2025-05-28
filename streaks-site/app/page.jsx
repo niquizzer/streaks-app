@@ -16,7 +16,7 @@ export default function Home() {
           {/* Takes up 8/12 columns on medium screens and up */}
           <h1 className="display-4">Welcome to Streaks</h1>
           <p className="lead">Track your daily habits</p>
-          <Link href="./dashboard">
+          <Link href="./auth/register">
             <Button variant="primary" size="lg">
               Get Started
             </Button>
