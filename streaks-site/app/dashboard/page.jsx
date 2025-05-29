@@ -32,6 +32,13 @@ const Dashboard = () => {
     { title: "Total Goals", value: goals.length, variant: "info" },
   ];
 
+  useEffect(() => {
+    if (status === "idle") {
+      dispatch(fetchGoals());
+      console.log("Data fetched: ",fetchGoals);
+    }
+  }, [status, dispatch]);
+
   return (
     <Container fluid className="p-4">
       {/* Error Alert */}

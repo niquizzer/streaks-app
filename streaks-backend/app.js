@@ -3,8 +3,12 @@ import cors from "cors";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcryptjs";
 import db from "../streaks-database/connect.js";
+import dotenv from "dotenv";
+
+dotenv.config();
 
 const app = express();
+const JWT_SECRET = process.env.JWT_SECRET;
 const port = process.env.PORT || 8080;
 
 app.use(
@@ -17,20 +21,6 @@ app.use(
 
 app.use(express.json());
 
-// JWT secret key (use environment variable in production)
-const JWT_SECRET = "your-secret-key";
-
-// Create users table
-db.run(`
-  CREATE TABLE IF NOT EXISTS users (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    email TEXT UNIQUE NOT NULL,
-    password TEXT NOT NULL,
-    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
-  )
-`);
-
-// Register endpoint
 app.post("/auth/register", async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -39,10 +29,8 @@ app.post("/auth/register", async (req, res) => {
       return res.status(400).json({ error: "Email and password are required" });
     }
 
-    // Hash password
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // Insert user
     const sql = `INSERT INTO users (email, password) VALUES (?, ?)`;
     db.run(sql, [email, hashedPassword], function (err) {
       if (err) {
@@ -52,7 +40,6 @@ app.post("/auth/register", async (req, res) => {
         return res.status(500).json({ error: err.message });
       }
 
-      // Generate JWT
       const token = jwt.sign({ userId: this.lastID, email }, JWT_SECRET, {
         expiresIn: "24h",
       });
@@ -61,7 +48,7 @@ app.post("/auth/register", async (req, res) => {
         message: "Registration successful",
         token,
         userId: this.lastID,
-        email,
+        email
       });
     });
   } catch (error) {
@@ -69,7 +56,6 @@ app.post("/auth/register", async (req, res) => {
   }
 });
 
-// Login endpoint
 app.post("/auth/login", async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -78,7 +64,6 @@ app.post("/auth/login", async (req, res) => {
       return res.status(400).json({ error: "Email and password are required" });
     }
 
-    // Find user
     db.get(
       "SELECT * FROM users WHERE email = ?",
       [email],
@@ -91,25 +76,22 @@ app.post("/auth/login", async (req, res) => {
           return res.status(401).json({ error: "Invalid credentials" });
         }
 
-        // Compare passwords
         const validPassword = await bcrypt.compare(password, user.password);
         if (!validPassword) {
           return res.status(401).json({ error: "Invalid credentials" });
-        }
+        } 
 
-        // Generate JWT
         const token = jwt.sign(
           { userId: user.id, email: user.email },
           JWT_SECRET,
           { expiresIn: "24h" }
         );
-
-        res.json({
-          message: "Login successful",
-          token,
-          userId: user.id,
-          email: user.email,
-        });
+    res.json({
+      message: "Login successful",
+      token,
+      userId: user.id,
+      email,
+    })
       }
     );
   } catch (error) {
@@ -117,7 +99,6 @@ app.post("/auth/login", async (req, res) => {
   }
 });
 
-// Authentication middleware
 const authenticateToken = (req, res, next) => {
   const authHeader = req.headers["authorization"];
   const token = authHeader && authHeader.split(" ")[1];
@@ -137,7 +118,8 @@ const authenticateToken = (req, res, next) => {
 
 // Get all goals
 app.get("/goals", authenticateToken, (req, res) => {
-  db.all("SELECT * FROM streaks", [], (err, rows) => {
+  const userId = req.user.userId;
+  db.all("SELECT * FROM streaks WHERE user_id = ?", [userId], (err, rows) => {
     if (err) {
       res.status(500).json({ error: err.message });
       return;
@@ -149,9 +131,10 @@ app.get("/goals", authenticateToken, (req, res) => {
 // Create a new goal
 app.post("/goals", authenticateToken, (req, res) => {
   const { name, start_date } = req.body;
-  const sql = `INSERT INTO streaks (name, start_date) VALUES (?, ?)`;
+  const userId = req.user.userId;
+  const sql = `INSERT INTO streaks (name, start_date, user_id) VALUES (?, ?, ?)`;
 
-  db.run(sql, [name, start_date], function (err) {
+  db.run(sql, [name, start_date, userId], function (err) {
     if (err) {
       res.status(400).json({ error: err.message });
       return;

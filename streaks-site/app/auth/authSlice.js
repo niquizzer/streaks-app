@@ -1,37 +1,36 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 
-// Async thunk for user registration
 export const registerUser = createAsyncThunk(
   "auth/register",
-  async ({ email, password }, { rejectWithValue }) => {
+  async ({ email, password }) => {
     try {
+      const token = localStorage.getItem('token');
       const response = await fetch("http://localhost:8080/auth/register", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json"},
         body: JSON.stringify({ email, password }),
       });
       const data = await response.json();
+      console.log("Registration: ", data);
 
-      if (!response.ok) {
-        return rejectWithValue(data.error);
-      }
-
-      localStorage.setItem("token", data.token);
+      localStorage.setItem(token, data.token);
       return data;
     } catch (error) {
-      return rejectWithValue(error.message);
+      console.error(error.message);
     }
   }
 );
 
-// Async thunk for user login
 export const loginUser = createAsyncThunk(
   "auth/login",
   async ({ email, password }, { rejectWithValue }) => {
     try {
+      const token = localStorage.getItem('token')
       const response = await fetch("http://localhost:8080/auth/login", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`
+         },
         body: JSON.stringify({ email, password }),
       });
       const data = await response.json();
@@ -43,10 +42,9 @@ export const loginUser = createAsyncThunk(
       localStorage.setItem("token", data.token);
       return data;
     } catch (error) {
-      return rejectWithValue(error.message);
-    }
+      console.error("Login: ", data);
   }
-);
+});
 
 const authSlice = createSlice({
   name: "auth",

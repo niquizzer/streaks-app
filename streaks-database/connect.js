@@ -11,7 +11,7 @@ const __dirname = dirname(__filename);
 const dbPath = path.join(__dirname, "streaks.db");
 
 const db = new sqlite3.Database(
-  dbPath, 
+  dbPath,
   sqlite3.OPEN_READWRITE | sqlite3.OPEN_CREATE,
   (err) => {
     if (err) {
@@ -21,12 +21,30 @@ const db = new sqlite3.Database(
     console.log("Connected to SQLite database");
 
     db.run(
+      `
+  CREATE TABLE IF NOT EXISTS users (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    email TEXT UNIQUE NOT NULL,
+    password TEXT NOT NULL,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    )`,
+      (err) => {
+        if (err) {
+          console.error("Error creating table:", err.message);
+        } else {
+          console.log("Successfully created users db");
+        }
+      }
+    );
+    db.run(
       `CREATE TABLE IF NOT EXISTS streaks (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         name TEXT NOT NULL,
         start_date TEXT NOT NULL,
         current_count INTEGER DEFAULT 0,
-        created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        user_id INTEGER
+        ,FOREIGN KEY (user_id) REFERENCES users(id)
     )`,
       (err) => {
         if (err) {

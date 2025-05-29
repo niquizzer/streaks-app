@@ -1,19 +1,30 @@
-"use client"
+"use client";
 
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 
-// Async thunks for CRUD operations
 export const fetchGoals = createAsyncThunk("dashboard/fetchGoals", async () => {
-  const response = await fetch("http://localhost:8080/api/goals");
+  const token = localStorage.getItem("token");
+  const response = await fetch("http://localhost:8080/api/goals", {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+  if (!response.ok) {
+    console.error("Failed to fetch goals: ", error.message);
+  }
   return response.json();
 });
 
 export const createGoal = createAsyncThunk(
   "dashboard/createGoal",
   async (goalData) => {
+    const token = localStorage.getItem("token");
     const response = await fetch("http://localhost:8080/api/goals", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
       body: JSON.stringify(goalData),
     });
     return response.json();
@@ -23,9 +34,13 @@ export const createGoal = createAsyncThunk(
 export const updateGoal = createAsyncThunk(
   "dashboard/updateGoal",
   async ({ id, goalData }) => {
+    const token = localStorage.getItem("token");
     const response = await fetch(`http://localhost:8080/api/goals/${id}`, {
       method: "PUT",
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
       body: JSON.stringify(goalData),
     });
     return response.json();
@@ -35,8 +50,12 @@ export const updateGoal = createAsyncThunk(
 export const deleteGoal = createAsyncThunk(
   "dashboard/deleteGoal",
   async (id) => {
+    const token = localStorage.getItem("token");
     await fetch(`http://localhost:8080/api/goals/${id}`, {
       method: "DELETE",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
     });
     return id;
   }

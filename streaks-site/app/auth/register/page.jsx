@@ -4,8 +4,9 @@ import { registerUser } from "../authSlice";
 import { useDispatch } from "react-redux";
 import { useState } from "react";
 import { Container, Form, Button, Card } from "react-bootstrap";
+import Link from "next/link";
 
-const Login = () => {
+const Register = () => {
   const dispatch = useDispatch();
   const [formData, setFormData] = useState({
     email: "",
@@ -19,9 +20,12 @@ const Login = () => {
     });
   };
 
-  const handleRegister = (e) => {
+  const handleRegister = async (e) => {
     e.preventDefault();
-    dispatch(registerUser(formData));
+    const result = await dispatch(registerUser(formData));
+    if(result?.payload?.token){
+        Router.push("../auth/login");
+    }
   };
 
   return (
@@ -61,6 +65,12 @@ const Login = () => {
               <Button variant="primary" type="submit">
                 Register
               </Button>
+              <Link
+                className="d-flex align-items-center justify-content-center"
+                href="../auth/login"
+              >
+                Already have an account?
+              </Link>
             </div>
           </Form>
         </Card.Body>
@@ -69,4 +79,4 @@ const Login = () => {
   );
 };
 
-export default Login;
+export default Register;
