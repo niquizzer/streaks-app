@@ -4,7 +4,7 @@ import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 
 export const fetchGoals = createAsyncThunk("dashboard/fetchGoals", async () => {
   const token = localStorage.getItem("token");
-  const response = await fetch("http://localhost:8080/api/goals", {
+  const response = await fetch("http://localhost:8080/goals", {
     headers: {
       Authorization: `Bearer ${token}`,
     },
@@ -19,7 +19,7 @@ export const createGoal = createAsyncThunk(
   "dashboard/createGoal",
   async (goalData) => {
     const token = localStorage.getItem("token");
-    const response = await fetch("http://localhost:8080/api/goals", {
+    const response = await fetch("http://localhost:8080/goals", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -35,7 +35,7 @@ export const updateGoal = createAsyncThunk(
   "dashboard/updateGoal",
   async ({ id, goalData }) => {
     const token = localStorage.getItem("token");
-    const response = await fetch(`http://localhost:8080/api/goals/${id}`, {
+    const response = await fetch(`http://localhost:8080/goals/${id}`, {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
@@ -51,7 +51,7 @@ export const deleteGoal = createAsyncThunk(
   "dashboard/deleteGoal",
   async (id) => {
     const token = localStorage.getItem("token");
-    await fetch(`http://localhost:8080/api/goals/${id}`, {
+    await fetch(`http://localhost:8080/goals/${id}`, {
       method: "DELETE",
       headers: {
         Authorization: `Bearer ${token}`,

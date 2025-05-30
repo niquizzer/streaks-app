@@ -55,6 +55,7 @@ const authSlice = createSlice({
     token: null,
     loading: false,
     error: null,
+    dashboardData: null,
     isAuthenticated: null,
   },
   reducers: {
@@ -107,7 +108,7 @@ const authSlice = createSlice({
       .addCase(loginUser.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
-      });
+      })
   },
 });
 
