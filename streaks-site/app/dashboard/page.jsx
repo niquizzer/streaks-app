@@ -17,13 +17,30 @@ import {
   selectAllGoals,
   selectDashboardStatus,
 } from "./dashboardSlice";
+import { logout } from "../auth/authSlice";
+import { useRouter } from "next/navigation";
 
-// Component name should start with capital letter
 const Dashboard = () => {
   const dispatch = useDispatch();
   const goals = useSelector(selectAllGoals);
   const status = useSelector(selectDashboardStatus);
+  const router = useRouter();
   const [error, setError] = useState(null);
+  const isAuthenticated = useSelector((state) => state.auth.isAuthenticated);
+
+  //fetchGoals will grab data from dashboardSlice state
+  //Need a useState to handle showPrompt and newGoalName and helper function (handlePromptSubmit + handleAddGoal)
+  // handlePromptSubmit will dispatch createGoal make showPrompt false, and setGoal name to ""
+  //handleAddGoal will setShowPrompt to true
+
+  //For logout, user clicks logout button, a handler function will delete token
+  //Clear authentication state (reducer)
+  //Route to login page
+
+  const handleLogout = () => {
+    dispatch(logout());
+    router.push("./auth/login");
+  };
 
   // Stats cards data
   const statsCards = [
@@ -35,9 +52,15 @@ const Dashboard = () => {
   useEffect(() => {
     if (status === "idle") {
       dispatch(fetchGoals());
-      console.log("Data fetched: ",fetchGoals);
+      console.log("Data fetched: ", fetchGoals);
     }
   }, [status, dispatch]);
+
+  useEffect(() => {
+    if (!isAuthenticated) {
+      router.push("/auth/login");
+    }
+  }, [isAuthenticated, router]);
 
   return (
     <Container fluid className="p-4">
@@ -56,15 +79,25 @@ const Dashboard = () => {
               <h1 className="display-6">My Streaks</h1>
               <p className="text-muted">Track your daily progress</p>
             </div>
-            <Button
-              variant="primary"
-              onClick={() => {
-                /* Add New Streak handler */
-              }}
-              aria-label="Add new streak"
-            >
-              Add New Streak
-            </Button>
+            <div>
+              <Button
+                variant="outline-secondary"
+                className="me-2"
+                onClick={handleLogout}
+                aria-label="Logout"
+              >
+                Logout
+              </Button>
+              <Button
+                variant="primary"
+                onClick={() => {
+                  /* Add New Streak handler */
+                }}
+                aria-label="Add new streak"
+              >
+                Add New Streak
+              </Button>
+            </div>
           </Col>
         </Row>
       </header>
