@@ -26,21 +26,43 @@ const Dashboard = () => {
   const status = useSelector(selectDashboardStatus);
   const router = useRouter();
   const [error, setError] = useState(null);
+  const [showPrompt, setPrompt] = useState(false);
+  const [newGoalName, setNewGoal] = useState("");
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
   const isAuthenticated = useSelector((state) => state.auth.isAuthenticated);
+
+  const handlePromptSubmit = (goalData) => {
+    try {
+      dispatch(createGoal(goalData));
+    } catch (error) {
+      console.error("Error adding new streak: ", err.message);
+    } finally {
+      setPrompt(false);
+      setNewGoal("");
+    }
+  };
+
+  const handleAddGoal = () => {
+    setPrompt(true);
+  };
+
+  const handleLogout = async () => {
+    try {
+      setIsLoggingOut(true);
+      await dispatch(logout());
+      router.push("/auth/login"); 
+    } catch (err) {
+      setError("Failed to log out. Please try again.");
+      console.error("Logout error:", err);
+    } finally {
+      setIsLoggingOut(false);
+    }
+  };
 
   //fetchGoals will grab data from dashboardSlice state
   //Need a useState to handle showPrompt and newGoalName and helper function (handlePromptSubmit + handleAddGoal)
   // handlePromptSubmit will dispatch createGoal make showPrompt false, and setGoal name to ""
   //handleAddGoal will setShowPrompt to true
-
-  //For logout, user clicks logout button, a handler function will delete token
-  //Clear authentication state (reducer)
-  //Route to login page
-
-  const handleLogout = () => {
-    dispatch(logout());
-    router.push("./auth/login");
-  };
 
   // Stats cards data
   const statsCards = [
@@ -84,15 +106,28 @@ const Dashboard = () => {
                 variant="outline-secondary"
                 className="me-2"
                 onClick={handleLogout}
+                disabled={isLoggingOut}
                 aria-label="Logout"
               >
-                Logout
+                {isLoggingOut ? (
+                  <>
+                    <Spinner
+                      as="span"
+                      animation="border"
+                      size="sm"
+                      role="status"
+                      aria-hidden="true"
+                      className="me-1"
+                    />
+                    Logging out...
+                  </>
+                ) : (
+                  "Logout"
+                )}
               </Button>
               <Button
                 variant="primary"
-                onClick={() => {
-                  /* Add New Streak handler */
-                }}
+                onClick={handleAddGoal}
                 aria-label="Add new streak"
               >
                 Add New Streak

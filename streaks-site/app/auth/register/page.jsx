@@ -26,7 +26,7 @@ const Register = () => {
     e.preventDefault();
     const result = await dispatch(registerUser(formData));
     if(result?.payload?.userId){
-        router.push("./login");
+        router.push("/login");
     }
   };
 

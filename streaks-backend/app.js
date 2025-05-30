@@ -46,7 +46,6 @@ app.post("/auth/register", async (req, res) => {
 
       res.json({
         message: "Registration successful",
-        token,
         userId: this.lastID,
         email
       });
