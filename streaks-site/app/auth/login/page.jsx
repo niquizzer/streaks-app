@@ -4,9 +4,11 @@ import { Container, Form, Button, Card } from "react-bootstrap";
 import { useDispatch } from "react-redux"; 
 import { useState } from "react";
 import { loginUser } from "../authSlice";
+import { useRouter } from "next/navigation";
 
 const Login = () => {
     const dispatch = useDispatch();
+    const router = useRouter();
     const [formData, setFormData] = useState({
         email: "",
         password: "",
@@ -16,7 +18,7 @@ const Login = () => {
         e.preventDefault();
         const result = await dispatch(loginUser(formData));
         if(result?.payload?.token){
-            Router.push("/dashboard");
+            router.push("/dashboard");
         }
     } 
 
@@ -62,7 +64,7 @@ const Login = () => {
 
             <div className="d-grid gap-2">
               <Button variant="primary" type="submit">
-                Register
+              Login
               </Button>
             </div>
           </Form>

@@ -5,8 +5,10 @@ import { useDispatch } from "react-redux";
 import { useState } from "react";
 import { Container, Form, Button, Card } from "react-bootstrap";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 const Register = () => {
+  const router = useRouter();
   const dispatch = useDispatch();
   const [formData, setFormData] = useState({
     email: "",
@@ -23,8 +25,8 @@ const Register = () => {
   const handleRegister = async (e) => {
     e.preventDefault();
     const result = await dispatch(registerUser(formData));
-    if(result?.payload?.token){
-        Router.push("../auth/login");
+    if(result?.payload?.userId){
+        router.push("./login");
     }
   };
 
