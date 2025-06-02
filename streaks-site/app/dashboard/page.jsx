@@ -10,6 +10,8 @@ import {
   Button,
   Alert,
   Spinner,
+  Modal,
+  Form,
 } from "react-bootstrap";
 import {
   fetchGoals,
@@ -25,17 +27,25 @@ const Dashboard = () => {
   const goals = useSelector(selectAllGoals);
   const status = useSelector(selectDashboardStatus);
   const router = useRouter();
+  const userId = localStorage.getItem("token");
   const [error, setError] = useState(null);
   const [showPrompt, setPrompt] = useState(false);
   const [newGoalName, setNewGoal] = useState("");
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const isAuthenticated = useSelector((state) => state.auth.isAuthenticated);
 
-  const handlePromptSubmit = (goalData) => {
+  const handlePromptSubmit = async (goalData) => {
     try {
-      dispatch(createGoal(goalData));
+      const resultAction = await dispatch(createGoal(goalData));
+
+      if (createGoal.rejected.match(resultAction)) {
+        const error = resultAction.error;
+        console.error("Error adding streak:", error);
+        setError(`Failed to create streak: ${error.message}`);
+      }
     } catch (error) {
-      console.error("Error adding new streak: ", err.message);
+      console.error("Error adding new streak:", error);
+      setError("Failed to create streak. Please try again.");
     } finally {
       setPrompt(false);
       setNewGoal("");
@@ -43,14 +53,28 @@ const Dashboard = () => {
   };
 
   const handleAddGoal = () => {
+    setNewGoal("");
     setPrompt(true);
+  };
+
+  const submitNewGoal = () => {
+    if (newGoalName.trim().length === 0) {
+      setError("Please enter a streak name");
+      return;
+    }
+
+    handlePromptSubmit({
+      name: newGoalName,
+      startDate: new Date().toISOString(),
+      userId: userId, 
+    });
   };
 
   const handleLogout = async () => {
     try {
       setIsLoggingOut(true);
       await dispatch(logout());
-      router.push("/auth/login"); 
+      router.push("/auth/login");
     } catch (err) {
       setError("Failed to log out. Please try again.");
       console.error("Logout error:", err);
@@ -59,12 +83,6 @@ const Dashboard = () => {
     }
   };
 
-  //fetchGoals will grab data from dashboardSlice state
-  //Need a useState to handle showPrompt and newGoalName and helper function (handlePromptSubmit + handleAddGoal)
-  // handlePromptSubmit will dispatch createGoal make showPrompt false, and setGoal name to ""
-  //handleAddGoal will setShowPrompt to true
-
-  // Stats cards data
   const statsCards = [
     { title: "Active Streaks", value: goals.length, variant: "primary" },
     { title: "Longest Streak", value: "0", variant: "success" },
@@ -184,9 +202,23 @@ const Dashboard = () => {
                   {goals.map((goal) => (
                     <div
                       key={goal.id}
-                      className="streak-card p-3 border-bottom"
+                      className={`streak-card p-3 border-bottom ${
+                        goal.currentStreak > 0 ? "active" : ""
+                      }`}
                     >
-                      {/* Placeholder for streak items */}
+                      <div className="d-flex justify-content-between align-items-center">
+                        <div>
+                          <h5 className="mb-1">{goal.name}</h5>
+                          <small className="text-muted">
+                            Started{" "}
+                            {new Date(goal.startDate).toLocaleDateString()}
+                          </small>
+                        </div>
+                        <div className="text-end">
+                          <h4 className="mb-0">{goal.currentStreak}</h4>
+                          <small className="text-muted">days</small>
+                        </div>
+                      </div>
                     </div>
                   ))}
                 </div>
@@ -195,6 +227,38 @@ const Dashboard = () => {
           </Card>
         </Col>
       </Row>
+
+      {/* New Streak Modal */}
+      <Modal show={showPrompt} onHide={() => setPrompt(false)}>
+        <Modal.Header closeButton>
+          <Modal.Title>Add New Streak</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <Form>
+            <Form.Group className="mb-3">
+              <Form.Label>Streak Name</Form.Label>
+              <Form.Control
+                type="text"
+                placeholder="Enter a name for your new streak"
+                value={newGoalName}
+                onChange={(e) => setNewGoal(e.target.value)}
+                autoFocus
+              />
+              <Form.Text className="text-muted">
+                Give your streak a clear, motivating name
+              </Form.Text>
+            </Form.Group>
+          </Form>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={() => setPrompt(false)}>
+            Cancel
+          </Button>
+          <Button variant="primary" onClick={submitNewGoal}>
+            Create Streak
+          </Button>
+        </Modal.Footer>
+      </Modal>
 
       <style jsx>{`
         .stats-card {

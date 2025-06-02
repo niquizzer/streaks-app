@@ -129,8 +129,7 @@ app.get("/goals", authenticateToken, (req, res) => {
 
 // Create a new goal
 app.post("/goals", authenticateToken, (req, res) => {
-  const { name, start_date } = req.body;
-  const userId = req.user.userId;
+  const { name, start_date, userId } = req.body;
   const sql = `INSERT INTO streaks (name, start_date, user_id) VALUES (?, ?, ?)`;
 
   db.run(sql, [name, start_date, userId], function (err) {

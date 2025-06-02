@@ -1,4 +1,4 @@
-"use client";
+"luse client";
 
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 
@@ -65,6 +65,8 @@ const initialState = {
   goals: [],
   status: "idle", // 'idle' | 'loading' | 'succeeded' | 'failed'
   error: null,
+  userId: null,
+  //store userID in state, clear userId on logout
 };
 
 const dashboardSlice = createSlice({
